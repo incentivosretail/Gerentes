@@ -1,0 +1,597 @@
+  <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Incentivos - Gerenciales</title>
+  <style>
+    /* Reset & Base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #F0F4FF;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      color: #333;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    /* Header Principal */
+    .header-azul {
+      background: linear-gradient(135deg, #003DA5, #0056D6);
+      padding: 25px 20px;
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 12px rgba(0, 61, 165, 0.3);
+      color: white;
+    }
+    .header-azul h1 {
+      font-size: 1.45rem;
+      font-weight: bold;
+      color: #FFD100;
+    }
+    .header-azul p {
+      font-size: 0.85rem;
+      color: #e0ecff;
+      margin-top: 6px;
+    }
+
+    /* Selector de Puesto */
+    .puesto-selector {
+      margin-bottom: 15px;
+    }
+    .puesto-selector label {
+      display: block;
+      font-weight: bold;
+      color: #003DA5;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+    .puesto-selector select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #003DA5;
+      border-radius: 12px;
+      font-size: 1rem;
+      background-color: white;
+      color: #003DA5;
+      font-weight: bold;
+      outline: none;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    /* Tarjetas de Pasos */
+    .card {
+      background: white;
+      border-left: 5px solid #003DA5;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: #003DA5;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Inputs */
+    .input-group {
+      margin-bottom: 8px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 0.82rem;
+      color: #444;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 2px solid #003DA5;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .input-group input:focus {
+      box-shadow: 0 0 0 3px rgba(0,61,165,0.2);
+    }
+
+    /* Chips de Estado */
+    .chip {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+    .chip-verde { background-color: #D4EDDA; color: #155724; }
+    .chip-rojo { background-color: #F8D7DA; color: #721C24; }
+    .chip-amarillo { background-color: #FFF3CD; color: #856404; }
+
+    /* Métricas Internas */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .metric-box {
+      background: #E8F0FF;
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .metric-valor {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #003DA5;
+    }
+    .metric-etiqueta {
+      font-size: 0.72rem;
+      color: #555;
+      margin-top: 2px;
+    }
+
+    /* Tarjeta de Resultado Final */
+    .resultado-card {
+      background: linear-gradient(135deg, #003DA5, #0056D6);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      color: white;
+      margin-top: 15px;
+      box-shadow: 0 6px 20px rgba(0, 61, 165, 0.4);
+    }
+    .resultado-label {
+      font-size: 0.9rem;
+      color: white;
+      margin-bottom: 6px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .resultado-total {
+      font-size: 2.3rem;
+      font-weight: bold;
+      color: #FFD100;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+    .resultado-desglose {
+      font-size: 0.82rem;
+      color: #cce0ff;
+      margin-top: 12px;
+      line-height: 1.4;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 10px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 0.75rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Encabezado -->
+    <div class="header-azul">
+      <h1>Calculadora de Incentivos</h1>
+      <p>Esquema de Comisiones para Mandos Gerenciales</p>
+    </div>
+
+    <!-- Selector de Puesto -->
+    <div class="puesto-selector">
+      <label for="puesto">👤 Selecciona tu Puesto:</label>
+      <select id="puesto" onchange="cambiarPuesto()">
+        <option value="gg">👔 Gerente General</option>
+        <option value="gz">💼 Gerente de Zona</option>
+        <option value="gr">🗺️ Gerente Regional</option>
+      </select>
+    </div>
+
+    <!-- ================= PANEL GERENTE GENERAL ================= -->
+    <div id="panel-gg" class="panel-puesto">
+      <!-- Paso 1: Venta Tienda -->
+      <div class="card">
+        <div class="card-title">🏪 Paso 1 — Venta de Tienda</div>
+        <div class="input-group">
+          <label for="gg-venta">% Cumplimiento meta de venta de la Tienda:</label>
+          <input type="number" id="gg-venta" value="103" min="0" max="200" step="0.1" oninput="calcularTodo()">
+          <div id="gg-venta-chip"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-valor" id="gg-base-val">$0.00</div>
+            <div class="metric-etiqueta">Incentivo Base Temporal</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Evaluación Objetiva -->
+      <div class="card">
+        <div class="card-title">📋 Paso 2 — Evaluación Objetiva</div>
+        <div class="input-group">
+          <label for="gg-eval">% Resultado de Evaluación Objetiva:</label>
+          <input type="number" id="gg-eval" value="95" min="0" max="100" step="0.1" oninput="calcularTodo()">
+          <div id="gg-eval-chip"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-valor" id="gg-mult-val">1.00x</div>
+            <div class="metric-etiqueta">Multiplicador por Evaluación</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PANEL GERENTE DE ZONA ================= -->
+    <div id="panel-gz" class="panel-puesto" style="display:none;">
+      <!-- Paso 1: Venta Zona -->
+      <div class="card">
+        <div class="card-title">🏪 Paso 1 — Venta de Zona</div>
+        <div class="input-group">
+          <label for="gz-venta">% Cumplimiento meta de venta de la Zona:</label>
+          <input type="number" id="gz-venta" value="103" min="0" max="200" step="0.1" oninput="calcularTodo()">
+          <div id="gz-venta-chip"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-valor" id="gz-base-val">$0.00</div>
+            <div class="metric-etiqueta">Incentivo Base Temporal</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Evaluación Objetiva -->
+      <div class="card">
+        <div class="card-title">📋 Paso 2 — Evaluación Objetiva</div>
+        <div class="input-group">
+          <label for="gz-eval">% Resultado de Evaluación Objetiva:</label>
+          <input type="number" id="gz-eval" value="95" min="0" max="100" step="0.1" oninput="calcularTodo()">
+          <div id="gz-eval-chip"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-valor" id="gz-mult-eval-val">1.00x</div>
+            <div class="metric-etiqueta">Multiplicador por Evaluación</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Desempeño Tiendas -->
+      <div class="card">
+        <div class="card-title">📈 Paso 3 — Desempeño de Tiendas</div>
+        <div class="input-group">
+          <label for="gz-tiendas">% de Tiendas que cumplieron meta acumulada de venta:</label>
+          <input type="number" id="gz-tiendas" value="30" min="0" max="100" step="0.1" oninput="calcularTodo()">
+          <div id="gz-tiendas-chip"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-valor" id="gz-mult-tiendas-val">1.00x</div>
+            <div class="metric-etiqueta">Multiplicador por Tiendas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PANEL GERENTE REGIONAL ================= -->
+    <div id="panel-gr" class="panel-puesto" style="display:none;">
+      <!-- Paso 1: Venta Regional -->
+      <div class="card">
+        <div class="card-title">🏪 Paso 1 — Venta Regional</div>
+        <div class="input-group">
+          <label for="gr-venta">% Cumplimiento meta de venta de la Región:</label>
+          <input type="number" id="gr-venta" value="103" min="0" max="200" step="0.1" oninput="calcularTodo()">
+          <div id="gr-venta-chip"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-valor" id="gr-base-val">$0.00</div>
+            <div class="metric-etiqueta">Incentivo Base Temporal</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Evaluación Objetiva -->
+      <div class="card">
+        <div class="card-title">📋 Paso 2 — Evaluación Objetiva</div>
+        <div class="input-group">
+          <label for="gr-eval">% Resultado de Evaluación Objetiva:</label>
+          <input type="number" id="gr-eval" value="95" min="0" max="100" step="0.1" oninput="calcularTodo()">
+          <div id="gr-eval-chip"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-valor" id="gr-mult-eval-val">1.00x</div>
+            <div class="metric-etiqueta">Multiplicador por Evaluación</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 3: Desempeño Tiendas -->
+      <div class="card">
+        <div class="card-title">📈 Paso 3 — Desempeño de Tiendas</div>
+        <div class="input-group">
+          <label for="gr-tiendas">% de Tiendas que cumplieron meta acumulada de venta:</label>
+          <input type="number" id="gr-tiendas" value="30" min="0" max="100" step="0.1" oninput="calcularTodo()">
+          <div id="gr-tiendas-chip"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box" style="grid-column: span 2;">
+            <div class="metric-valor" id="gr-mult-tiendas-val">1.00x</div>
+            <div class="metric-etiqueta">Multiplicador por Tiendas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TARJETA DE RESULTADO GENERAL ================= -->
+    <div class="resultado-card">
+      <div class="resultado-label">🏆 TU INCENTIVO TOTAL DEL MES</div>
+      <div class="resultado-total" id="total-incentivo">$0.00</div>
+      <div class="resultado-desglose" id="desglose-texto">
+        Selecciona un puesto e ingresa los datos para ver el desglose.
+      </div>
+    </div>
+
+    <div class="footer">
+      Calculadora de Incentivos — Solo para Uso Interno v1.2
+    </div>
+
+  </div>
+
+  <script>
+    const formatter = new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2
+    });
+
+    function cambiarPuesto() {
+      const puesto = document.getElementById('puesto').value;
+      
+      document.getElementById('panel-gg').style.display = puesto === 'gg' ? 'block' : 'none';
+      document.getElementById('panel-gz').style.display = puesto === 'gz' ? 'block' : 'none';
+      document.getElementById('panel-gr').style.display = puesto === 'gr' ? 'block' : 'none';
+      
+      calcularTodo();
+    }
+
+    function obtenerMultEvaluacion(evalVal, cumpVenta) {
+      if (cumpVenta < 85) {
+        return { valor: 1.0, flag: 'req_fallido' };
+      }
+      if (evalVal >= 90) return { valor: 1.65, flag: 'ok' };
+      if (evalVal >= 85) return { valor: 1.50, flag: 'ok' };
+      if (evalVal >= 80) return { valor: 1.40, flag: 'ok' };
+      if (evalVal >= 75) return { valor: 1.30, flag: 'ok' };
+      if (evalVal >= 70) return { valor: 1.20, flag: 'ok' };
+      return { valor: 1.00, flag: 'bajo' };
+    }
+
+    function obtenerMultTiendas(tiendasVal) {
+      if (tiendasVal >= 25) {
+        return 1.15;
+      }
+      return 1.00;
+    }
+
+    function calcularTodo() {
+      const puesto = document.getElementById('puesto').value;
+
+      if (puesto === 'gg') {
+        const cumpVenta = parseFloat(document.getElementById('gg-venta').value) || 0;
+        const evalVal = parseFloat(document.getElementById('gg-eval').value) || 0;
+
+        let base = 0;
+        let chipVentaHTML = '';
+        if (cumpVenta < 90) {
+          base = 0;
+          chipVentaHTML = '<span class="chip chip-rojo">❌ < 90% — Sin Incentivo Base</span>';
+        } else if (cumpVenta < 95) {
+          base = 4000;
+          chipVentaHTML = '<span class="chip chip-amarillo">⚠️ Cumplimiento Parcial (90% - 94%)</span>';
+        } else if (cumpVenta < 97) {
+          base = 8000;
+          chipVentaHTML = '<span class="chip chip-amarillo">⚠️ Cumplimiento Parcial (95% - 96%)</span>';
+        } else if (cumpVenta < 100) {
+          base = 10000;
+          chipVentaHTML = '<span class="chip chip-amarillo">⚠️ Cumplimiento Parcial (97% - 99%)</span>';
+        } else if (cumpVenta < 105) {
+          base = 12500;
+          chipVentaHTML = '<span class="chip chip-verde">✅ Meta Alcanzada (100% - 104%)</span>';
+        } else if (cumpVenta < 110) {
+          base = 15000;
+          chipVentaHTML = '<span class="chip chip-verde">🚀 Desempeño Sobresaliente (105% - 109%)</span>';
+        } else {
+          base = 17000;
+          chipVentaHTML = '<span class="chip chip-verde">🔥 Desempeño Máximo (≥ 110%)</span>';
+        }
+        
+        document.getElementById('gg-venta-chip').innerHTML = chipVentaHTML;
+        document.getElementById('gg-base-val').innerText = formatter.format(base);
+
+        const evalResult = obtenerMultEvaluacion(evalVal, cumpVenta);
+        const multEval = evalResult.valor;
+        let chipEvalHTML = '';
+
+        if (evalResult.flag === 'req_fallido') {
+          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Cumplimiento de venta debe ser ≥ 85%</span>';
+        } else if (multEval > 1.0) {
+          chipEvalHTML = `<span class="chip chip-verde">✅ Multiplicador de ${multEval}x Aplicado</span>`;
+        } else {
+          chipEvalHTML = '<span class="chip chip-amarillo">⚠️ Multiplicador Base (1.00x)</span>';
+        }
+        
+        document.getElementById('gg-eval-chip').innerHTML = chipEvalHTML;
+        document.getElementById('gg-mult-val').innerText = multEval.toFixed(2) + 'x';
+
+        const total = base * multEval;
+        document.getElementById('total-incentivo').innerText = formatter.format(total);
+        document.getElementById('desglose-texto').innerHTML = `
+          Incentivo Base: <b>${formatter.format(base)}</b><br>
+          Multiplicador de Evaluación Objetiva: <b>${multEval.toFixed(2)}x</b><br>
+          Fórmula: ${formatter.format(base)} × ${multEval.toFixed(2)}
+        `;
+
+      } else if (puesto === 'gz') {
+        const cumpVenta = parseFloat(document.getElementById('gz-venta').value) || 0;
+        const evalVal = parseFloat(document.getElementById('gz-eval').value) || 0;
+        const tiendasVal = parseFloat(document.getElementById('gz-tiendas').value) || 0;
+
+        let base = 0;
+        let chipVentaHTML = '';
+        if (cumpVenta < 93) {
+          base = 0;
+          chipVentaHTML = '<span class="chip chip-rojo">❌ < 93% — Sin Incentivo Base</span>';
+        } else if (cumpVenta < 95) {
+          base = 4000;
+          chipVentaHTML = '<span class="chip chip-amarillo">⚠️ Cumplimiento Parcial (93% - 94%)</span>';
+        } else if (cumpVenta < 98) {
+          base = 8000;
+          chipVentaHTML = '<span class="chip chip-amarillo">⚠️ Cumplimiento Parcial (95% - 97%)</span>';
+        } else if (cumpVenta < 100) {
+          base = 10000;
+          chipVentaHTML = '<span class="chip chip-amarillo">⚠️ Cumplimiento Parcial (98% - 99%)</span>';
+        } else if (cumpVenta < 105) {
+          base = 12500;
+          chipVentaHTML = '<span class="chip chip-verde">✅ Meta Alcanzada (100% - 104%)</span>';
+        } else if (cumpVenta < 110) {
+          base = 15000;
+          chipVentaHTML = '<span class="chip chip-verde">🚀 Desempeño Sobresaliente (105% - 109%)</span>';
+        } else {
+          base = 17000;
+          chipVentaHTML = '<span class="chip chip-verde">🔥 Desempeño Máximo (≥ 110%)</span>';
+        }
+        
+        document.getElementById('gz-venta-chip').innerHTML = chipVentaHTML;
+        document.getElementById('gz-base-val').innerText = formatter.format(base);
+
+        const evalResult = obtenerMultEvaluacion(evalVal, cumpVenta);
+        const multEval = evalResult.valor;
+        let chipEvalHTML = '';
+
+        if (evalResult.flag === 'req_fallido') {
+          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Cumplimiento de venta debe ser ≥ 85%</span>';
+        } else if (multEval > 1.0) {
+          chipEvalHTML = `<span class="chip chip-verde">✅ Multiplicador de ${multEval}x Aplicado</span>`;
+        } else {
+          chipEvalHTML = '<span class="chip chip-amarillo">⚠️ Multiplicador Base (1.00x)</span>';
+        }
+        
+        document.getElementById('gz-eval-chip').innerHTML = chipEvalHTML;
+        document.getElementById('gz-mult-eval-val').innerText = multEval.toFixed(2) + 'x';
+
+        const multTiendas = obtenerMultTiendas(tiendasVal);
+        let chipTiendasHTML = '';
+        if (multTiendas > 1.0) {
+          chipTiendasHTML = '<span class="chip chip-verde">✅ ¡Bono de tiendas activo! (1.15x)</span>';
+        } else {
+          chipTiendasHTML = '<span class="chip chip-amarillo">⚠️ < 25% de tiendas cumplidas (1.00x)</span>';
+        }
+        
+        document.getElementById('gz-tiendas-chip').innerHTML = chipTiendasHTML;
+        document.getElementById('gz-mult-tiendas-val').innerText = multTiendas.toFixed(2) + 'x';
+
+        const total = base * multEval * multTiendas;
+        document.getElementById('total-incentivo').innerText = formatter.format(total);
+        document.getElementById('desglose-texto').innerHTML = `
+          Incentivo Base: <b>${formatter.format(base)}</b><br>
+          Multiplicador Evaluación: <b>${multEval.toFixed(2)}x</b> | Multiplicador Tiendas: <b>${multTiendas.toFixed(2)}x</b><br>
+          Fórmula: ${formatter.format(base)} × ${multEval.toFixed(2)} × ${multTiendas.toFixed(2)}
+        `;
+
+      } else if (puesto === 'gr') {
+        const cumpVenta = parseFloat(document.getElementById('gr-venta').value) || 0;
+        const evalVal = parseFloat(document.getElementById('gr-eval').value) || 0;
+        const tiendasVal = parseFloat(document.getElementById('gr-tiendas').value) || 0;
+
+        let base = 0;
+        let chipVentaHTML = '';
+        if (cumpVenta < 95) {
+          base = 0;
+          chipVentaHTML = '<span class="chip chip-rojo">❌ < 95% — Sin Incentivo Base</span>';
+        } else if (cumpVenta < 97) {
+          base = 8000;
+          chipVentaHTML = '<span class="chip chip-amarillo">⚠️ Cumplimiento Parcial (95% - 96%)</span>';
+        } else if (cumpVenta < 100) {
+          base = 10000;
+          chipVentaHTML = '<span class="chip chip-amarillo">⚠️ Cumplimiento Parcial (97% - 99%)</span>';
+        } else if (cumpVenta < 105) {
+          base = 12500;
+          chipVentaHTML = '<span class="chip chip-verde">✅ Meta Alcanzada (100% - 104%)</span>';
+        } else {
+          base = 15000;
+          chipVentaHTML = '<span class="chip chip-verde">🚀 Desempeño Sobresaliente (≥ 105%)</span>';
+        }
+        
+        document.getElementById('gr-venta-chip').innerHTML = chipVentaHTML;
+        document.getElementById('gr-base-val').innerText = formatter.format(base);
+
+        const evalResult = obtenerMultEvaluacion(evalVal, cumpVenta);
+        const multEval = evalResult.valor;
+        let chipEvalHTML = '';
+
+        if (evalResult.flag === 'req_fallido') {
+          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Cumplimiento de venta debe ser ≥ 85%</span>';
+        } else if (multEval > 1.0) {
+          chipEvalHTML = `<span class="chip chip-verde">✅ Multiplicador de ${multEval}x Aplicado</span>`;
+        } else {
+          chipEvalHTML = '<span class="chip chip-amarillo">⚠️ Multiplicador Base (1.00x)</span>';
+        }
+        
+        document.getElementById('gr-eval-chip').innerHTML = chipEvalHTML;
+        document.getElementById('gr-mult-eval-val').innerText = multEval.toFixed(2) + 'x';
+
+        const multTiendas = obtenerMultTiendas(tiendasVal);
+        let chipTiendasHTML = '';
+        if (multTiendas > 1.0) {
+          chipTiendasHTML = '<span class="chip chip-verde">✅ ¡Bono de tiendas activo! (1.15x)</span>';
+        } else {
+          chipTiendasHTML = '<span class="chip chip-amarillo">⚠️ < 25% de tiendas cumplidas (1.00x)</span>';
+        }
+        
+        document.getElementById('gr-tiendas-chip').innerHTML = chipTiendasHTML;
+        document.getElementById('gr-mult-tiendas-val').innerText = multTiendas.toFixed(2) + 'x';
+
+        const total = base * multEval * multTiendas;
+        document.getElementById('total-incentivo').innerText = formatter.format(total);
+        document.getElementById('desglose-texto').innerHTML = `
+          Incentivo Base: <b>${formatter.format(base)}</b><br>
+          Multiplicador Evaluación: <b>${multEval.toFixed(2)}x</b> | Multiplicador Tiendas Región: <b>${multTiendas.toFixed(2)}x</b><br>
+          Fórmula: ${formatter.format(base)} × ${multEval.toFixed(2)} × ${multTiendas.toFixed(2)}
+        `;
+      }
+    }
+
+    window.onload = function() {
+      calcularTodo();
+    };
+  </script>
+</body>
+</html>
