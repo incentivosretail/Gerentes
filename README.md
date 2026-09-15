@@ -18,7 +18,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Incentivos Coppel - Gerenciales</title>
+  <title>Calculadora de Incentivos - Gerenciales</title>
   <style>
     /* Reset & Base */
     * {
@@ -40,41 +40,25 @@
       max-width: 500px;
     }
     
-    /* Header Coppel */
+    /* Header Principal */
     .header-azul {
       background: linear-gradient(135deg, #003DA5, #0056D6);
-      padding: 22px 20px;
+      padding: 25px 20px;
       border-radius: 16px;
       text-align: center;
       margin-bottom: 15px;
       box-shadow: 0 4px 12px rgba(0, 61, 165, 0.3);
       color: white;
-      position: relative;
-    }
-    /* Logotipo simulado de Coppel con CSS para no depender de archivos externos */
-    .logo-container {
-      display: inline-block;
-      background-color: #FFD100;
-      color: #003DA5;
-      font-weight: 900;
-      font-style: italic;
-      padding: 4px 15px;
-      border-radius: 4px;
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-      letter-spacing: 1px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
     .header-azul h1 {
       font-size: 1.45rem;
       font-weight: bold;
       color: #FFD100;
-      margin-top: 5px;
     }
     .header-azul p {
       font-size: 0.85rem;
       color: #e0ecff;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     /* Selector de Puesto */
@@ -102,7 +86,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 
-    /* Tarjetas de Pasos (Estilo Streamlit) */
+    /* Tarjetas de Pasos */
     .card {
       background: white;
       border-left: 5px solid #003DA5;
@@ -222,12 +206,6 @@
       font-size: 0.75rem;
       color: #777;
     }
-    .divider-azul {
-      border: none;
-      border-top: 1.5px solid #003DA5;
-      opacity: 0.15;
-      margin: 10px 0;
-    }
   </style>
 </head>
 <body>
@@ -236,7 +214,6 @@
     
     <!-- Encabezado -->
     <div class="header-azul">
-      <div class="logo-container">Coppel</div>
       <h1>Calculadora de Incentivos</h1>
       <p>Esquema de Comisiones para Mandos Gerenciales</p>
     </div>
@@ -398,20 +375,18 @@
     </div>
 
     <div class="footer">
-      Calculadora de Incentivos Coppel — Solo para Uso Interno v1.1
+      Calculadora de Incentivos — Solo para Uso Interno v1.2
     </div>
 
   </div>
 
   <script>
-    // Formateador de Moneda Mexicana
     const formatter = new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
       minimumFractionDigits: 2
     });
 
-    // Cambiar la vista según el puesto seleccionado
     function cambiarPuesto() {
       const puesto = document.getElementById('puesto').value;
       
@@ -422,9 +397,7 @@
       calcularTodo();
     }
 
-    // Lógica de cálculo común para Evaluación Objetiva (Misma escala en los 3 PDFs)
     function obtenerMultEvaluacion(evalVal, cumpVenta) {
-      // Requisito: cumplir al menos el 85% de la meta de venta de Tienda/Zona/Región
       if (cumpVenta < 85) {
         return { valor: 1.0, flag: 'req_fallido' };
       }
@@ -436,7 +409,6 @@
       return { valor: 1.00, flag: 'bajo' };
     }
 
-    // Lógica para Multiplicador de Tiendas (Para GZ y GR)
     function obtenerMultTiendas(tiendasVal) {
       if (tiendasVal >= 25) {
         return 1.15;
@@ -444,16 +416,13 @@
       return 1.00;
     }
 
-    // Cálculos Principales
     function calcularTodo() {
       const puesto = document.getElementById('puesto').value;
 
       if (puesto === 'gg') {
-        // --- GERENTE GENERAL ---
         const cumpVenta = parseFloat(document.getElementById('gg-venta').value) || 0;
         const evalVal = parseFloat(document.getElementById('gg-eval').value) || 0;
 
-        // Calcular Incentivo Base
         let base = 0;
         let chipVentaHTML = '';
         if (cumpVenta < 90) {
@@ -482,13 +451,12 @@
         document.getElementById('gg-venta-chip').innerHTML = chipVentaHTML;
         document.getElementById('gg-base-val').innerText = formatter.format(base);
 
-        // Calcular Multiplicador de Evaluación
         const evalResult = obtenerMultEvaluacion(evalVal, cumpVenta);
         const multEval = evalResult.valor;
         let chipEvalHTML = '';
 
         if (evalResult.flag === 'req_fallido') {
-          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Venta de Tienda debe ser ≥ 85%</span>';
+          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Cumplimiento de venta debe ser ≥ 85%</span>';
         } else if (multEval > 1.0) {
           chipEvalHTML = `<span class="chip chip-verde">✅ Multiplicador de ${multEval}x Aplicado</span>`;
         } else {
@@ -498,7 +466,6 @@
         document.getElementById('gg-eval-chip').innerHTML = chipEvalHTML;
         document.getElementById('gg-mult-val').innerText = multEval.toFixed(2) + 'x';
 
-        // Resultado Final
         const total = base * multEval;
         document.getElementById('total-incentivo').innerText = formatter.format(total);
         document.getElementById('desglose-texto').innerHTML = `
@@ -508,12 +475,10 @@
         `;
 
       } else if (puesto === 'gz') {
-        // --- GERENTE DE ZONA ---
         const cumpVenta = parseFloat(document.getElementById('gz-venta').value) || 0;
         const evalVal = parseFloat(document.getElementById('gz-eval').value) || 0;
         const tiendasVal = parseFloat(document.getElementById('gz-tiendas').value) || 0;
 
-        // Calcular Incentivo Base
         let base = 0;
         let chipVentaHTML = '';
         if (cumpVenta < 93) {
@@ -542,13 +507,12 @@
         document.getElementById('gz-venta-chip').innerHTML = chipVentaHTML;
         document.getElementById('gz-base-val').innerText = formatter.format(base);
 
-        // Calcular Multiplicador de Evaluación
         const evalResult = obtenerMultEvaluacion(evalVal, cumpVenta);
         const multEval = evalResult.valor;
         let chipEvalHTML = '';
 
         if (evalResult.flag === 'req_fallido') {
-          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Venta de Zona debe ser ≥ 85%</span>';
+          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Cumplimiento de venta debe ser ≥ 85%</span>';
         } else if (multEval > 1.0) {
           chipEvalHTML = `<span class="chip chip-verde">✅ Multiplicador de ${multEval}x Aplicado</span>`;
         } else {
@@ -558,7 +522,6 @@
         document.getElementById('gz-eval-chip').innerHTML = chipEvalHTML;
         document.getElementById('gz-mult-eval-val').innerText = multEval.toFixed(2) + 'x';
 
-        // Calcular Multiplicador de Tiendas
         const multTiendas = obtenerMultTiendas(tiendasVal);
         let chipTiendasHTML = '';
         if (multTiendas > 1.0) {
@@ -570,22 +533,19 @@
         document.getElementById('gz-tiendas-chip').innerHTML = chipTiendasHTML;
         document.getElementById('gz-mult-tiendas-val').innerText = multTiendas.toFixed(2) + 'x';
 
-        // Resultado Final
         const total = base * multEval * multTiendas;
         document.getElementById('total-incentivo').innerText = formatter.format(total);
         document.getElementById('desglose-texto').innerHTML = `
           Incentivo Base: <b>${formatter.format(base)}</b><br>
-          Multiplicador Evaluación: <b>${multEval.toFixed(2)}x</b> | Multiplicador Tiendas GZ: <b>${multTiendas.toFixed(2)}x</b><br>
+          Multiplicador Evaluación: <b>${multEval.toFixed(2)}x</b> | Multiplicador Tiendas: <b>${multTiendas.toFixed(2)}x</b><br>
           Fórmula: ${formatter.format(base)} × ${multEval.toFixed(2)} × ${multTiendas.toFixed(2)}
         `;
 
       } else if (puesto === 'gr') {
-        // --- GERENTE REGIONAL ---
         const cumpVenta = parseFloat(document.getElementById('gr-venta').value) || 0;
         const evalVal = parseFloat(document.getElementById('gr-eval').value) || 0;
         const tiendasVal = parseFloat(document.getElementById('gr-tiendas').value) || 0;
 
-        // Calcular Incentivo Base
         let base = 0;
         let chipVentaHTML = '';
         if (cumpVenta < 95) {
@@ -608,13 +568,12 @@
         document.getElementById('gr-venta-chip').innerHTML = chipVentaHTML;
         document.getElementById('gr-base-val').innerText = formatter.format(base);
 
-        // Calcular Multiplicador de Evaluación
         const evalResult = obtenerMultEvaluacion(evalVal, cumpVenta);
         const multEval = evalResult.valor;
         let chipEvalHTML = '';
 
         if (evalResult.flag === 'req_fallido') {
-          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Venta Regional debe ser ≥ 85%</span>';
+          chipEvalHTML = '<span class="chip chip-rojo">⚠️ Bloqueado: Cumplimiento de venta debe ser ≥ 85%</span>';
         } else if (multEval > 1.0) {
           chipEvalHTML = `<span class="chip chip-verde">✅ Multiplicador de ${multEval}x Aplicado</span>`;
         } else {
@@ -624,7 +583,6 @@
         document.getElementById('gr-eval-chip').innerHTML = chipEvalHTML;
         document.getElementById('gr-mult-eval-val').innerText = multEval.toFixed(2) + 'x';
 
-        // Calcular Multiplicador de Tiendas
         const multTiendas = obtenerMultTiendas(tiendasVal);
         let chipTiendasHTML = '';
         if (multTiendas > 1.0) {
@@ -636,7 +594,6 @@
         document.getElementById('gr-tiendas-chip').innerHTML = chipTiendasHTML;
         document.getElementById('gr-mult-tiendas-val').innerText = multTiendas.toFixed(2) + 'x';
 
-        // Resultado Final
         const total = base * multEval * multTiendas;
         document.getElementById('total-incentivo').innerText = formatter.format(total);
         document.getElementById('desglose-texto').innerHTML = `
@@ -647,7 +604,6 @@
       }
     }
 
-    // Inicializar cálculos al cargar la página
     window.onload = function() {
       calcularTodo();
     };
@@ -660,4 +616,4 @@
 							</script>
                         </body>
                         </html>
-                    # Gerentes
+                    
